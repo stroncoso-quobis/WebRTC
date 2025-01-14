@@ -1,0 +1,95 @@
+@startuml BYON NotificationChannel 0.1.2
+
+title "WebRTC - RACM with implicit subscription"
+autonumber "<font color=blue><b>[0]"
+
+<style>
+.audioStyle {
+  arrow {
+    LineColor red
+    LineThickness 5
+  }
+}
+.wsStyle {
+  arrow {
+    LineColor blue
+    LineThickness 5
+  }
+}
+</style>
+
+'participant "Notification\nclient" as WebClient
+participant "Web\nClient" as WebClient
+participant "Notification\nSystem" as NotifSystem
+' participant OAuth #LightGreen
+participant "WebRTC\ngateway" as WebRTC_GW
+participant "IMS\nNetwork" as IMS_Network
+participant "Remote\nendpoint" as RemoteEndpoint
+
+' --- Notification Channel 
+' group Notification Channel 
+
+' activate WebClient #LightGray
+
+' WebClient -> OAuth: Authentication/refresh Token
+' OAuth -> WebClient: Access/refresh Token
+  
+' WebClient -> NotifSystem: **POST /notificationchannel/{apiVersion}/channels**
+
+' NotifSystem <--> OAuth: Validate Auth-token
+
+' WebClient <-- NotifSystem: **200 Success**\n\
+'   "notificationUrl": "https://webrtc.camara.com/webhooks/123456"
+' note left NotifSystem
+'   This URL will point to the Notification System
+'   that is an optional part of the WebRTC gateway
+' end note
+
+' activate WebClient #LightGreen
+
+' WebClient <-> NotifSystem <<wsStyle>>: Notification channel established
+' end
+
+' --- Register on network
+group Register on network 
+
+WebClient -> WebRTC_GW: **POST /webrtc-racm/{apiVersion}/session**
+WebClient <-- WebRTC_GW: **200 OK**\n\
+  "racmSessionId": "abcd-efgh-abcd-efgh"\n\
+  "sink": "https://webrtc.camara.com/webhooks/123456"
+
+WebRTC_GW -> IMS_Network: REGISTER
+WebRTC_GW <- IMS_Network: 200 OK
+
+end
+
+' --- Incomming call
+group Incomming call 
+
+WebRTC_GW <- IMS_Network: INVITE
+WebRTC_GW -> IMS_Network: 100 Trying
+
+WebRTC_GW -> NotifSystem: **POST https://webrtc.camara.com/webhooks/123456**\n\
+  "type": "org.camaraproject.webrtc-events.v0.session-invitation"\n\
+  "data": {address, sdp, status, vvoipSessionId, ...}
+WebRTC_GW <-- NotifSystem: 204
+
+NotifSystem -> WebClient <<wsStyle>>: Call incoming
+
+WebClient -> WebRTC_GW: **PUT /sessions/{vvoipSessionId}/status**\n\
+  "status": "Ringing"
+
+WebRTC_GW -> IMS_Network: 180 Ringing
+
+WebClient -> WebRTC_GW: **PUT /sessions/{vvoipSessionId}/status**\n\
+  "status": "InProgress" \n\
+  "answer": { "sdp" }
+WebRTC_GW -> IMS_Network: 183 Progress + SDP
+
+
+end
+
+
+
+
+@enduml
