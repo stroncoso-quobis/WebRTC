@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Markdown Viewer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 1rem;
+      line-height: 1.6;
+    }
+    pre {
+      background-color: #f4f4f4;
+      padding: 0.5em;
+      overflow-x: auto;
+    }
+    code {
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+  <div id="markdown-output">Loading...</div>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.5/dist/purify.min.js"></script>
+  <script>
+    // Get ?src=... parameter
+    const params = new URLSearchParams(window.location.search);
+    const src = params.get("src");
+
+    if (!src) {
+      document.getElementById("markdown-output").innerText =
+        "No markdown source specified. Use ?src=URL_TO_MD_FILE";
+    } else {
+      fetch(src)
+        .then((res) => {
+          if (!res.ok) throw new Error("Markdown file not found.");
+          return res.text();
+        })
+        .then((md) => {
+          const html = marked.parse(md);
+          const clean = DOMPurify.sanitize(html);
+          document.getElementById("markdown-output").innerHTML = clean;
+        })
+        .catch((err) => {
+          document.getElementById("markdown-output").innerText =
+            "Error loading markdown: " + err;
+        });
+    }
+  </script>
+</body>
+</html>
