@@ -1,0 +1,6 @@
+# docs/_config.yml
+title: CAMARA API Viewer
+description: WebRTC – stroncoso-quobis fork
+theme: slate
+# para que Jekyll procese también tus .html “planos”
+include: ["index.html", "api-render.html"]
