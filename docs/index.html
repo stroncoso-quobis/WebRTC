@@ -3,12 +3,21 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>API status viewer</title>
+  <title>CAMARA API viewer</title>
   <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@4.5.0/swagger-ui.css" />
 </head>
+<h1>CAMARA API Viewer</h1>
+<h2>WebRTC - stroncoso-quobis fork</h2>
 <body>
-  <li><a href="webrtc-registration.html">webrtc-registration</a></li>
-  <li><a href="webrtc-call-handling.html">webrtc-call-handling</a></li>
-  <li><a href="webrtc-events-subscription.html">webrtc-events-subscription</a></li>
+  <select id="branch-select">
+    <option value="">Cargando ramas...</option>
+  </select>
+  <li><a class="link-api" href="api-render.html?apiFile=webrtc-registration.yaml">webrtc-registration</a></li>
+  <li><a class="link-api" href="api-render.html?apiFile=webrtc-call-handling.yaml">webrtc-call-handling</a></li>
+  <li><a class="link-api" href="api-render.html?apiFile=webrtc-events-subscription.yaml">webrtc-events-subscription</a></li>
 </body>
+
+<!-- Cargamos nuestro script de branches -->
+<script src="js/branches.js"></script>
+<script src="js/linkUpdater.js"></script>
 </html>

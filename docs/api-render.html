@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="SwaggerUI" />
+  <title>SwaggerUI personalizado</title>
+  <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@4.5.0/swagger-ui.css" />
+</head>
+<body>
+  <div id="swagger-ui"></div>
+
+  <script src="https://unpkg.com/swagger-ui-dist@4.5.0/swagger-ui-bundle.js" crossorigin></script>
+  <script>
+    window.onload = () => {
+      // 1. Obtenemos los parámetros de la URL
+      const params = new URLSearchParams(window.location.search);
+      const branch   = params.get('branch')   || 'main';
+      const apiFile  = params.get('apiFile')  || 'webrtc-call-handling.yaml';
+
+      // 2. Construimos la URL de raw.githubusercontent
+      const swaggerUrl = 
+        `https://raw.githubusercontent.com/stroncoso-quobis/WebRTC/refs/heads/${encodeURIComponent(branch)}` +
+        `/code/API_definitions/${encodeURIComponent(apiFile)}`;
+
+      // 3. Inicializamos SwaggerUI con la URL dinámica
+      window.ui = SwaggerUIBundle({
+        url: swaggerUrl,
+        dom_id: '#swagger-ui',
+        // puedes añadir aquí cualquier otra opción de SwaggerUIBundle…
+      });
+    };
+  </script>
+</body>
+</html>
