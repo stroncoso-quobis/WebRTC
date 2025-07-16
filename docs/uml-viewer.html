@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>UML Viewer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 1rem;
+    }
+    #uml-container {
+      text-align: center;
+    }
+    img {
+      max-width: 100%;
+      border: 1px solid #ccc;
+    }
+  </style>
+</head>
+<body>
+  <div id="uml-container">Loading...</div>
+
+  <!-- PlantUML encoder -->
+  <script src="https://cdn.jsdelivr.net/npm/plantuml-encoder@1.4.0/dist/plantuml-encoder.min.js"></script>
+  <script>
+    
+    const params = new URLSearchParams(window.location.search);
+    const src = params.get("src");
+
+    const container = document.getElementById("uml-container");
+
+    if (!src) {
+      container.innerText = "No UML source specified. Use ?src=URL_TO_UML_FILE";
+    } else {
+      fetch(src)
+        .then(res => {
+          if (!res.ok) throw new Error("UML file not found");
+          return res.text();
+        })
+        .then(umlText => {
+          const encoded = plantumlEncoder.encode(umlText);
+          const imgUrl = `https://www.plantuml.com/plantuml/svg/${encoded}`;
+          const img = document.createElement("img");
+          img.src = imgUrl;
+          img.alt = "UML Diagram";
+          container.innerHTML = "";
+          container.appendChild(img);
+        })
+        .catch(err => {
+          container.innerText = "Error loading UML: " + err;
+        });
+    }
+  </script>
+</body>
+</html>
